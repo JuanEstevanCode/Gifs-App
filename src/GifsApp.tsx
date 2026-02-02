@@ -1,27 +1,38 @@
 import CustomHeader from "./shared/components/CustomHeader"
 import SearchBar from "./shared/components/SearchBar"
-import { mockGifs } from "./mock-data/gifs.mock"
 import PreviousSeaches from "./gifs/components/PreviousSearches"
 import GifList from "./gifs/components/GifList"
 import { useState } from "react"
+import { getGifs } from "./gifs/actions/get-gif-by-value-input"
+import type { Gif } from "./gifs/interfaces/gif.interface"
 
 const GifsApp = () => {
     const [previousSearches, setpreviousSearches] = useState<string[]>([])
+    const [gifs, setGifs] = useState<Gif[]>([])
 
-    const addSearch = (search:string) => {
-        setpreviousSearches(prev => [...prev, search])
+    const handleValueClick = async (value: string) => {
+        setGifs(await getGifs(value))
     }
 
-    const handleTermClick = (term:string) => {
-        console.log(term)
+    const handleSearch = async (value: string) => {
+        value = value.trim().toLowerCase()
+
+        if (value.length === 0) return
+
+        setpreviousSearches(prev => {
+            const filtered = prev.filter(item => item !== value)
+            return [value, ...filtered].slice(0, 5)
+        })
+
+        setGifs(await getGifs(value))
     }
 
     return (
         <>
-            <CustomHeader title="Buscador de Gifs" description="Descubre y comparte el gif perfecto"/>
-            <SearchBar onSearch={addSearch} placeholder="Buscador"/>
-            <PreviousSeaches handleClickPrevious={handleTermClick} searches={previousSearches}/>
-            <GifList gifs={mockGifs}/>
+            <CustomHeader title="Buscador de Gifs" description="Descubre y comparte el gif perfecto" />
+            <SearchBar onSearch={handleSearch} placeholder="Buscador" />
+            <PreviousSeaches handleClickPrevious={handleValueClick} searches={previousSearches} />
+            <GifList gifs={gifs} />
         </>
     )
 }

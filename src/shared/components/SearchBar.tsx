@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 interface Props {
     placeholder?:string
@@ -9,11 +9,21 @@ const SearchBar = ({placeholder='Buscar', onSearch}:Props) => {
 
     const [value, setValue] = useState('')
 
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            onSearch(value)
+        }, 1000)
+
+        return () => {
+            clearTimeout(timeoutId)
+        }
+    },[value, onSearch])
+
     const inputValue = (e:React.ChangeEvent<HTMLInputElement>) => {
         setValue(e.target.value)
     }
 
-    const manageKeyDown = (e:React.KeyboardEvent) => {
+    const manageKeyDown = (e:React.KeyboardEvent<HTMLInputElement>) => {
         if(e.key === 'Enter') {
             handleClickSearch()
         }
@@ -21,9 +31,9 @@ const SearchBar = ({placeholder='Buscar', onSearch}:Props) => {
 
     const handleClickSearch = () => {
         if (!value.trim()) return
-        console.log(value)
+        // console.log(value)
         onSearch(value)
-        setValue('')
+        // setValue('')
     }
 
     return (
