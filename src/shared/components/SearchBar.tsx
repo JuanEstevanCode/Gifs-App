@@ -31,9 +31,7 @@ const SearchBar = ({placeholder='Buscar', onSearch}:Props) => {
 
     const handleClickSearch = () => {
         if (!value.trim()) return
-        // console.log(value)
         onSearch(value)
-        // setValue('')
     }
 
     return (

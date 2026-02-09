@@ -1,15 +1,24 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import type { Gif } from "../interfaces/gif.interface"
 import { getGifs } from "../actions/get-gif-by-value-input"
 
+// const gifsCache: Record<string, Gif[]> = {}
 
 const useGifs = () => {
 
     const [previousSearches, setpreviousSearches] = useState<string[]>([])
     const [gifs, setGifs] = useState<Gif[]>([])
 
+    const gifsCache = useRef<Record<string,Gif[]>>({})
+
     const handleValueClick = async (value: string) => {
-        setGifs(await getGifs(value))
+        if (gifsCache.current[value]) {
+            setGifs(gifsCache.current[value])
+            return;
+        }
+
+        const gifs = await getGifs(value)
+        setGifs(gifs)
     }
 
     const handleSearch = async (value: string) => {
@@ -21,8 +30,11 @@ const useGifs = () => {
             const filtered = prev.filter(item => item !== value)
             return [value, ...filtered].slice(0, 5)
         })
+        if (previousSearches.includes(value)) return;
 
-        setGifs(await getGifs(value))
+        const gifs = await getGifs(value)
+        setGifs(gifs)
+        gifsCache.current[value] = gifs
     }
 
 
